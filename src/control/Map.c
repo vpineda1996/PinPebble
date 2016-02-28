@@ -9,6 +9,10 @@
 #include "Map.h"
 #define NUMBER_OF_MAP_ELEM 1
 
+static Map_Element *map_elements;
+static Ball *ball;
+static Map_Element launcher;
+
 void map_init(Ball* b){
     map_elements = calloc(NUMBER_OF_MAP_ELEM, sizeof(Map_Element));
     ball = b;
@@ -36,5 +40,4 @@ void map_tick(){
 
 void map_deinit(){
     free(map_elements);
-    free(ball);
 }

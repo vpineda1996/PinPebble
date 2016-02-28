@@ -9,11 +9,14 @@
 #include "Map_Element.h"
 #include "../env.h"
 
+static void element_render_circle(Map_Element*, GContext*, int);
+static int element_collide_circle(Map_Element*, Ball*);
+
 void element_init_default(Map_Element *elem){
-    elem->height = 20;
-    elem->width = 20;
-    elem->offset_x = -10;
-    elem->offset_y = -10;
+    elem->height = 30;
+    elem->width = 30;
+    elem->offset_x = 0;
+    elem->offset_y = 0;
 }
 
 // --------------------
@@ -27,13 +30,12 @@ void element_init_circle(Map_Element *circle){
 }
 
 static void element_render_circle(Map_Element *this, GContext *ctx, int window_y_offset){
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Started rendering circle");
     if(within_bounds(window_y_offset, this)){
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "True");
-        graphics_draw_circle(ctx, GPoint((this->offset_x + this->width / 2),
-                                            ((this->offset_y - window_y_offset) + this->height / 2)), this->width/2);
+        int centerX = (this->offset_x + this->width / 2);
+        int centerY = ((this->offset_y - window_y_offset) + this->height / 2);
+        graphics_draw_circle(ctx, GPoint(centerX, centerY), this->width / 2);
+        graphics_draw_circle(ctx, GPoint(centerX, centerY), this->width / 2 - 5);
     }
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "End render circle");
 }
 
 static int element_collide_circle(Map_Element *this, Ball *b){
