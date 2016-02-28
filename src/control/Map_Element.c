@@ -7,7 +7,6 @@
 //
 
 #include "Map_Element.h"
-#include "../env.h"
 
 static void element_render_bump(Map_Element*, GContext*, int);
 static int element_collide_bump(Map_Element*, Ball*);
@@ -16,15 +15,18 @@ static void element_render_launcher(Map_Element*, GContext*, int);
 static int element_collide_launcher(Map_Element*, Ball*);
 
 void element_init_default(Map_Element *elem){
-    elem->height = 30;
-    elem->width = 30;
-    elem->offset_x = 0;
-    elem->offset_y = 0;
+    elem->height = 60;
+    elem->width = 60;
+    elem->offset_x = 30;
+    elem->offset_y = 60;
 }
 
 // --------------------
 // BASIC CIRCLE FUNCTIONS
 // -------------------
+
+static int _within_circle(Map_Element *this, Ball* b);
+static void _updateDirection(Map_Element *this, Ball *b);
 
 void element_init_bump(Map_Element *bump){
     element_init_default(bump);
@@ -42,7 +44,44 @@ static void element_render_bump(Map_Element *this, GContext *ctx, int window_y_o
 }
 
 static int element_collide_bump(Map_Element *this, Ball *b){
-    return 0;
+    if(_within_circle(this, b)){
+        _updateDirection(this,b);
+    }
+    return false;
+}
+
+static int _within_circle(Map_Element *this, Ball* b){
+    int elementCenterX = this->offset_x + this->width / 2;
+    int elementCenterY = this->offset_y + this->height / 2;
+
+    if(abs_c(b->x - elementCenterX) < this->width / 2 && abs_c(b->y - elementCenterY) < this->height / 2){ // inside circle , calculate new direction
+        Vector2 direction2ball = {
+            .x = (float)(b->x - elementCenterX),
+            .y = (float)(b->y - elementCenterY)
+        };
+
+        Vector2 directionOfBall = {
+            .x = (float)(b->dx),
+            .y = (float)(b->dy)
+        };
+
+        float oldMagnitude = magnitdeOfVector(&directionOfBall);
+
+        transformToUnitVector(&direction2ball);
+        transformToUnitVector(&directionOfBall);
+
+        float dot_prod = dotProduct(&direction2ball, &directionOfBall);
+        add2VectorsAndSaveOnFirst(&direction2ball, &directionOfBall);
+        vectorMulitplyByScalar(&direction2ball, abs_c(dot_prod) * oldMagnitude);
+        b->dx = ceil(direction2ball.x) == 0 ? floor(direction2ball.x) : ceil(direction2ball.x);
+        b->dy = ceil(direction2ball.y) == 0 ? floor(direction2ball.y) : ceil(direction2ball.y);
+        return true;
+
+    }else return false;
+}
+
+static void _updateDirection(Map_Element *this, Ball *b){
+
 }
 
 // --------------------

@@ -9,6 +9,8 @@
 #include "pebble.h"
 #include "Ball.h"
 #include "utils.h"
+#include "../env.h"
+#include <math.h>
 
 
 #ifndef Map_Element_h
