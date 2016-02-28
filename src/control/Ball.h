@@ -9,7 +9,13 @@
 #ifndef Ball_h
 #define Ball_h
 
-typedef void Ball;
+typedef struct Ball {
+    short radius;
+    short x;
+    short y;
+    float dx;
+    float dy;
+} Ball;
 
 
 #endif /* Ball_h */

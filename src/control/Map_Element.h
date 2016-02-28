@@ -16,10 +16,10 @@
 
 typedef struct Map_Element{
     void *state;
-    int height;
-    int width;
-    int offset_x;
-    int offset_y;
+    short height;
+    short width;
+    short offset_x;
+    short offset_y;
     void (* render)(struct Map_Element*, GContext*, int);
     void (* tick)(struct Map_Element*);
     void (* collide)(struct Map_Element*, Ball*);
