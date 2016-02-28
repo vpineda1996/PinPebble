@@ -8,6 +8,10 @@
 
 static int game_state = MENU;
 static Window *game_window;
+static AppTimer *tick_timer = NULL;
+static BitmapLayer *bg_layer = NULL;
+static GBitmap *bg_bitmap = NULL;
+static Layer *canvas;
 
 static void game_init();
 static void start_game();
@@ -15,6 +19,9 @@ static void pause_game();
 static void resume_game();
 static void stop_game();
 
+static void tick();
+static void next_tick();
+static void render();
 // -----------------------------------------------------------------------------------------
 // Menu Window
 
@@ -86,12 +93,16 @@ static void window_unload(Window *window) {
 }
 static void game_window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
-  GRect bounds = layer_get_bounds(window_layer);
+  GRect window_bounds = layer_get_bounds(window_layer);
 
-  text_layer = text_layer_create(GRect(0, 72, bounds.size.w, 20));
-  text_layer_set_text(text_layer, "Press a button");
-  text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
-  layer_add_child(window_layer, text_layer_get_layer(text_layer));
+  // Set up background
+  bg_layer = bitmap_layer_create(GRect(0, 0, window_bounds.size.w, window_bounds.size.h));
+  layer_add_child(window_layer, bitmap_layer_get_layer(bg_layer));
+
+  // Set up canvas
+  canvas = layer_create(GRect(0, 0, window_bounds.size.w, window_bounds.size.h));
+  layer_set_update_proc(canvas, render);
+  layer_add_child(window_layer, canvas);
 }
 
 static void gane_window_unload(Window *window) {
@@ -128,27 +139,38 @@ static void game_init(void) {
 }
 
 static void start_game() {
-   APP_LOG(APP_LOG_LEVEL_DEBUG, "start game");
+  next_tick();
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "start game");
 }
 
 static void pause_game() {
+  stop_game();
   game_state = PAUSE;
-   APP_LOG(APP_LOG_LEVEL_DEBUG, "pause game");
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "pause game");
 }
 
 static void resume_game() {
+  next_tick();
   game_state = GAME;
-   APP_LOG(APP_LOG_LEVEL_DEBUG, "resume game");
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "resume game");
 }
 
 static void stop_game() {
-   APP_LOG(APP_LOG_LEVEL_DEBUG, "stop game");
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "stop game");
+  if (tick_timer != NULL) {
+    // Cancel any Timer
+    app_timer_cancel(tick_timer);
+    tick_timer = NULL;
+  }
 }
 
 static void game_deinit(void) {
   window_destroy(game_window);
 }
 
+
+
+// MAIN LOAD
 
 int main(void) {
   init();
@@ -158,10 +180,17 @@ int main(void) {
   app_event_loop();
   deinit();
 }
+
+// TICK
 static void tick() {
+  // ...
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "refresh");
 
+  next_tick();
 }
-
+static void next_tick() {
+  tick_timer = app_timer_register(1000 / FRAME_RATE, tick, NULL);
+}
 static void render() {
 
 }
