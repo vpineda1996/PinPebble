@@ -27,7 +27,7 @@ typedef struct Map_Element{
 } Map_Element;
 
 void element_init_default(Map_Element*);
-void element_init_circle(Map_Element*);
+void element_init_bump(Map_Element*);
 void element_init_launcher(Map_Element*);
 
 #endif /* Map_Element_h */

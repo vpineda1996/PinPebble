@@ -16,7 +16,7 @@ static Map_Element launcher;
 void map_init(Ball* b){
     map_elements = calloc(NUMBER_OF_MAP_ELEM, sizeof(Map_Element));
     ball = b;
-    element_init_circle(&map_elements[0]);
+    element_init_bump(&map_elements[0]);
     element_init_launcher(&launcher);
 }
 
