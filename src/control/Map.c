@@ -7,16 +7,21 @@
 //
 
 #include "Map.h"
-#define NUMBER_OF_MAP_ELEM 5
+#define NUMBER_OF_MAP_ELEM 8
 
 static Map_Element **map_elements;
 static Ball *ball;
-static Map_Element launcher_right, launcher_left, left_trigger, right_trigger, bumper_1;
+static Map_Element launcher_right, launcher_left,
+                    left_trigger, right_trigger,
+                    bumper_1, bumper_2, bumper_3, bumper_4;
 
 void map_init(Ball* b){
     map_elements = calloc(NUMBER_OF_MAP_ELEM, sizeof(Map_Element*));
     ball = b;
     element_init_bump(&bumper_1);
+    element_init_bump(&bumper_2);
+    element_init_bump(&bumper_3);
+    element_init_bump(&bumper_4);
     element_init_left_trigger(&left_trigger);
     element_init_right_trigger(&right_trigger);
     element_init_launcher_right(&launcher_right);
@@ -26,6 +31,9 @@ void map_init(Ball* b){
     map_elements[2] = &right_trigger;
     map_elements[3] = &launcher_right;
     map_elements[4] = &launcher_left;
+    map_elements[5] = &bumper_2;
+    map_elements[6] = &bumper_3;
+    map_elements[7] = &bumper_4;
 }
 
 void map_render(GContext *ctx, int window_y_offset){

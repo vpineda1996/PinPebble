@@ -94,13 +94,16 @@ static void window_load(Window *window) {
   GRect bounds = layer_get_bounds(window_layer);
 
   text_layer = text_layer_create(GRect(0, 72, bounds.size.w, 20));
-  text_layer_set_text(text_layer, "Press a button");
+  text_layer_set_text(text_layer, "START GAME!");
   text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
 }
 
 static void window_unload(Window *window) {
   text_layer_destroy(text_layer);
+  stop_game();
+  map_deinit();
+  free(ball);
 }
 static void game_window_load(Window *window) {
 
@@ -110,6 +113,7 @@ static void game_window_load(Window *window) {
 
   // Set up background
   bg_layer = bitmap_layer_create(GRect(0, 0, window_bounds.size.w, window_bounds.size.h));
+  bitmap_layer_set_background_color(bg_layer, GColorFromRGB(239,249,104));
   layer_add_child(window_layer, bitmap_layer_get_layer(bg_layer));
 
   // Set up canvas
@@ -168,10 +172,6 @@ static void stop_game() {
     app_timer_cancel(tick_timer);
     tick_timer = NULL;
   }
-}
-
-static void game_deinit(void) {
-  window_destroy(game_window);
 }
 
 static void moveLeftTrigger(){

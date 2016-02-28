@@ -16,10 +16,10 @@ void ball_init(Ball* this){
     this->tick = ball_tick;
     this->render = ball_render;
     this->radius = 6;
-    this->x = this->radius;
-    this->y = this->radius;
+    this->x = this->radius * 2;
+    this->y = SCREEN_HEIGHT / 2 ;
     this->dx = -2;
-    this->dy = -2;
+    this->dy = -1;
     this->_dt = .2;
     this->_tempY = 0;
     this->_gravity = 3;
