@@ -28,7 +28,9 @@ void element_init_circle(Map_Element *circle){
 }
 
 static void element_render_circle(Map_Element *this, GContext *ctx, int window_y_offset){
-    printf("it works %d\n", within_bounds(window_y_offset, this->offset_x, this->offset_y, this->width, this->height));
+    if(within_bounds(window_y_offset, this->offset_x, this->offset_y, this->width, this->height)){
+        
+    }
 }
 
 static void element_tick_circle(Map_Element  *this){
