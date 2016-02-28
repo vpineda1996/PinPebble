@@ -21,16 +21,15 @@ typedef struct Map_Element{
     short offset_x;
     short offset_y;
     void (* render)(struct Map_Element*, GContext*, int);
-    void (* tick)(struct Map_Element*);
-    void (* collide)(struct Map_Element*, Ball*);
+    int (* collide)(struct Map_Element*, Ball*); // this will be called on every
+                                                // tick of the clock so update
+                                                // your state before clock
 } Map_Element;
 
 void element_init_default(Map_Element*);
 
 void element_init_circle(Map_Element*);
 static void element_render_circle(Map_Element*, GContext*, int);
-static void element_tick_circle(Map_Element*);
-static void element_collide_circle(Map_Element*, Ball*);
-
+static int element_collide_circle(Map_Element*, Ball*);
 
 #endif /* Map_Element_h */
