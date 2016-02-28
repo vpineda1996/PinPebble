@@ -54,8 +54,10 @@ void activateRightTrigger(){
 }
 
 void launch_ball() {
-  launcher_right.collide(&launcher_right, ball);
+  LaunchAction *action = (LaunchAction*) launcher_right.state;
+  action->launch(&launcher_right, ball);
 }
+
 void map_deinit(){
     int i;
     for (i = 0; i < NUMBER_OF_MAP_ELEM; i++) {

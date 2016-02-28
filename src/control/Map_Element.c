@@ -95,12 +95,23 @@ static int element_collide_bump(Map_Element *this, Ball *b){
 #define LAUNCHER_HEIGHT 45
 #define LAUNCHER_WIDTH 20
 
+void fire_ball(Map_Element *this, Ball *ball) {
+  if (ball->y - ball->radius < this->offset_y + 15 && ball->y + ball->radius < this->offset_y + 15 && ball->x - ball->radius >= this->offset_x && ball->x + ball->radius <= this->offset_x + this->width) {
+    ball->dx = 0;
+    ball->dy = -25;
+    ball->_tempY = -25;
+  }
+}
+
 void element_init_launcher_right(Map_Element *launcher){
     launcher->height = LAUNCHER_HEIGHT;
     launcher->width = LAUNCHER_WIDTH;
     launcher->offset_x = MAP_WIDTH - launcher->width;
     launcher->offset_y = MAP_HEIGHT - launcher->height;
-    launcher->state = (void*) 1;
+
+    LaunchAction *action = malloc(sizeof(LaunchAction));
+    action->launch = fire_ball;
+    launcher->state = action;
     launcher->render = element_render_launcher;
     launcher->collide = element_collide_launcher;
     launcher->dealloc = element_dealloc_default;
@@ -118,7 +129,7 @@ void element_init_launcher_left(Map_Element *launcher){
 
 static void element_render_launcher(Map_Element *this, GContext *ctx, int window_y_offset){
     if(within_bounds(window_y_offset, this)){
-        int power = (int) this->state;
+        int power = 1;
 
         graphics_context_set_fill_color(ctx, GColorFromRGB(0,0,0));
         graphics_draw_rect(ctx, GRect(this->offset_x, this->offset_y - window_y_offset, this->width, this->height));
