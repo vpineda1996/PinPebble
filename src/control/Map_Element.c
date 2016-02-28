@@ -175,6 +175,7 @@ static void element_triggered_trigger(Map_Element* this){
 
 static void element_render_right_trigger(Map_Element* this, GContext* ctx, int window_y_offset){
     TriggerState *ts = (TriggerState *) this->state;
+    _update_on_tick_trigger_state(ts);
     GPoint path[] = {GPoint(0,0), GPoint(0,TRIGGER_HEIGHT), GPoint(-TRIGGER_WIDTH, TRIGGER_HEIGHT)};
     GPath il = (GPath) {
         .num_points = 3,
@@ -182,17 +183,7 @@ static void element_render_right_trigger(Map_Element* this, GContext* ctx, int w
         .rotation = ts->rotation,
         .offset = GPoint(this->offset_x, this->offset_y - window_y_offset)
     };
-
-    if(ts->up_time > 0){
-        if(ts->transition_time > 0){
-            ts->rotation = STEPS_ANGLE_TRIGGER * (TIME_TRANSITION_TRIGGER - ts->transition_time);
-            ts->transition_time--;
-        }else ts->up_time--;
-    }else ts->rotation = sin_lookup(0);
-
     gpath_draw_filled(ctx,&il);
-
-    graphics_context_set_fill_color(ctx, GColorFromRGB(0,64,175));
 }
 
 static int element_collide_right_trigger(Map_Element* this, Ball* b){
@@ -201,6 +192,7 @@ static int element_collide_right_trigger(Map_Element* this, Ball* b){
 
 static void element_render_left_trigger(Map_Element* this, GContext* ctx, int window_y_offset){
     TriggerState *ts = (TriggerState *) this->state;
+    _update_on_tick_trigger_state(ts);
     GPoint path[] = {GPoint(0,0), GPoint(0,TRIGGER_HEIGHT), GPoint(TRIGGER_WIDTH, TRIGGER_HEIGHT)};
     GPath il = (GPath) {
         .num_points = 3,
@@ -208,14 +200,7 @@ static void element_render_left_trigger(Map_Element* this, GContext* ctx, int wi
         .rotation = -ts->rotation,
         .offset = GPoint(this->offset_x, this->offset_y - window_y_offset)
     };
-    if(ts->up_time > 0){
-        if(ts->transition_time > 0){
-            ts->rotation = STEPS_ANGLE_TRIGGER * (TIME_TRANSITION_TRIGGER - ts->transition_time);
-            ts->transition_time--;
-        }else ts->up_time--;
-    }else ts->rotation = sin_lookup(0);
     gpath_draw_filled(ctx,&il);
-
 }
 
 static int element_collide_left_trigger(Map_Element* this, Ball* b){
@@ -224,4 +209,13 @@ static int element_collide_left_trigger(Map_Element* this, Ball* b){
 
 static void element_dealloc_trigger(Map_Element* this){
     free(this->state);
+}
+
+static void _update_on_tick_trigger_state(TriggerState *ts){
+    if(ts->up_time > 0){
+        if(ts->transition_time > 0){
+            ts->rotation = STEPS_ANGLE_TRIGGER * (TIME_TRANSITION_TRIGGER - ts->transition_time);
+            ts->transition_time--;
+        }else ts->up_time--;
+    }else ts->rotation = sin_lookup(0);
 }
