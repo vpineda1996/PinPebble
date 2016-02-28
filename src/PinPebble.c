@@ -188,12 +188,12 @@ static void game_deinit(void) {
 static short getScreenOffset() {
   short y = ball->y;
   APP_LOG(APP_LOG_LEVEL_DEBUG, "%d", y);
-  if (y < MAP_HEIGHT / 4 - ball->radius) {
+  if (y < SCREEN_HEIGHT / 2 - ball->radius) {
     return 0;
-  } else if (y > MAP_HEIGHT / 4 * 3 - ball->radius) {
-    return MAP_HEIGHT / 2;
+  } else if (y > MAP_HEIGHT - SCREEN_HEIGHT / 2  - ball->radius) {
+    return MAP_HEIGHT - SCREEN_HEIGHT;
   } else {
-    return y + ball->radius - MAP_HEIGHT / 4;
+    return y + ball->radius - SCREEN_HEIGHT / 2;
   }
 }
 
