@@ -57,12 +57,14 @@ static void pause_handler(ClickRecognizerRef recognizer, void *context) {
   if (game_state == GAME) {
     text_layer_set_text(text_layer, "PAUSE");
     game_state = PAUSE;
+  } else if (game_state == PAUSE) {
+    text_layer_set_text(text_layer, "RESUME");
+    game_state = GAME;
   }
 }
 static void resume_handler(ClickRecognizerRef recognizer, void *context) {
-  if (game_state == PAUSE) {
-    text_layer_set_text(text_layer, "RESUME");
-    game_state = GAME;
+  if (game_state == GAME) {
+
   }
 }
 
@@ -75,6 +77,12 @@ static void stop_handler(ClickRecognizerRef recognizer, void *context) {
   }
 }
 
+static void ingame_handler(ClickRecognizerRef recognizer, void *cnotext) {
+  if (game_state == GAME) {
+    launch_ball();
+  }
+}
+
 static void menu_click(void *context) {
   window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
   window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
@@ -83,7 +91,7 @@ static void menu_click(void *context) {
 static void game_click(void *context) {
   window_single_click_subscribe(BUTTON_ID_SELECT, stop_handler);
   window_single_click_subscribe(BUTTON_ID_UP, pause_handler);
-  window_single_click_subscribe(BUTTON_ID_DOWN, resume_handler);
+  window_single_click_subscribe(BUTTON_ID_DOWN,ingame_handler);
 }
 
 
@@ -187,7 +195,6 @@ static void game_deinit(void) {
 // HELPERS
 static short getScreenOffset() {
   short y = ball->y;
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "%d", y);
   if (y < SCREEN_HEIGHT / 2 - ball->radius) {
     return 0;
   } else if (y > MAP_HEIGHT - SCREEN_HEIGHT / 2  - ball->radius) {

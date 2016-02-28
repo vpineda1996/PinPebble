@@ -93,7 +93,15 @@ static void element_render_launcher(Map_Element *this, GContext *ctx, int window
     }
 }
 
-static int element_collide_launcher(Map_Element *this, Ball *b){
+static int element_collide_launcher(Map_Element *this, Ball *ball){
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "launcher initiated operation");
   int power = (int) this->state;
+  //if (ball->x + ball->radius > SCREEN_WIDTH - this->width && ball->y + ball->radius + 5 > SCREEN_HEIGHT - this->height) {
+  if (true) {
+    ball->dx = -.5;
+    ball->dy = -25;
+    ball->_tempY = -25;
+    return true;
+  }
   return false;
 }
