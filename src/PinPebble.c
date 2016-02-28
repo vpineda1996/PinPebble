@@ -1,7 +1,5 @@
 #include <pebble.h>
-
-#define WIDTH 144
-#define HEIGHT 168
+#include "env.h"
 
 #define MENU 1
 #define GAME 2
