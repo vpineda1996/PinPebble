@@ -200,9 +200,6 @@ static void tick() {
 
   layer_mark_dirty(canvas);
 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "call layer mark dirty");
-
-
   next_tick();
 }
 static void next_tick() {
@@ -210,6 +207,5 @@ static void next_tick() {
 }
 static void render(Layer *layer, GContext *ctx) {
 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "render");
   map_render(ctx, 0);
 }

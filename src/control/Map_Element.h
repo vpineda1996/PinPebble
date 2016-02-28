@@ -32,4 +32,8 @@ void element_init_circle(Map_Element*);
 static void element_render_circle(Map_Element*, GContext*, int);
 static int element_collide_circle(Map_Element*, Ball*);
 
+void element_init_launcher(Map_Element*);
+static void element_render_launcher(Map_Element*, GContext*, int);
+static int element_collide_launcher(Map_Element*, Ball*);
+
 #endif /* Map_Element_h */
