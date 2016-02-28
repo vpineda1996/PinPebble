@@ -145,6 +145,8 @@ static void game_init(void) {
   });
   const bool animated = true;
 
+  ball = malloc(sizeof(Ball));
+  ball_init(ball);
   map_init(ball);
 
   window_stack_push(game_window, animated);
@@ -196,7 +198,9 @@ int main(void) {
 // TICK
 static void tick() {
   // ...
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "refresh");
+
+  map_tick();
+  ball->tick(ball);
 
   layer_mark_dirty(canvas);
 
@@ -206,6 +210,6 @@ static void next_tick() {
   tick_timer = app_timer_register(1000 / FRAME_RATE, tick, NULL);
 }
 static void render(Layer *layer, GContext *ctx) {
-
   map_render(ctx, 0);
+  ball->render(ball, ctx, 0);
 }
