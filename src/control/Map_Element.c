@@ -7,7 +7,7 @@
 //
 
 #include "Map_Element.h"
-
+#include "../env.h"
 
 void element_init_default(Map_Element *elem){
     elem->height = 20;
@@ -41,5 +41,31 @@ static int element_collide_circle(Map_Element *this, Ball *b){
 }
 
 // --------------------
-// BASIC CIRCLE FUNCTIONS END
+// BASIC LAUNCHER FUNCTIONS
 // -------------------
+
+void element_init_launcher(Map_Element *launcher){
+    launcher->height = 45;
+    launcher->width = 20;
+    launcher->offset_x = MAP_WIDTH - launcher->width;
+    launcher->offset_y = MAP_HEIGHT - launcher->height;
+    launcher->state = (void*) 1;
+    launcher->render = element_render_launcher;
+    launcher->collide = element_collide_launcher;
+}
+
+static void element_render_launcher(Map_Element *this, GContext *ctx, int window_y_offset){
+    if(within_bounds(window_y_offset, this)){
+        int power = (int) this->state;
+
+        graphics_context_set_fill_color(ctx, GColorFromRGB(0,0,0));
+        graphics_draw_rect(ctx, GRect(this->offset_x, this->offset_y - window_y_offset, this->width, this->height));
+        graphics_context_set_fill_color(ctx, GColorFromRGB(150,150,150));
+        graphics_fill_rect(ctx, GRect(this->offset_x, this->offset_y - window_y_offset + power*15, this->width, this->height - 15*power), 0, GCornerNone);
+    }
+}
+
+static int element_collide_launcher(Map_Element *this, Ball *b){
+  int power = (int) this->state;
+  return false;
+}

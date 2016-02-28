@@ -15,6 +15,7 @@
 #define Map_h
 
 Map_Element *map_elements;
+Map_Element launcher;
 Ball *ball;
 
 void map_init(Ball*);
