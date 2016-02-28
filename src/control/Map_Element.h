@@ -26,10 +26,20 @@ typedef struct Map_Element{
     int (* collide)(struct Map_Element*, Ball*); // this will be called on every
                                                 // tick of the clock so update
                                                 // your state before clock
+    void (* dealloc)(struct Map_Element*);
 } Map_Element;
+
+typedef struct TriggerState {
+    int rotation;
+    int transition_time;
+    int up_time;
+    void (* triggered)();
+} TriggerState;
 
 void element_init_default(Map_Element*);
 void element_init_bump(Map_Element*);
 void element_init_launcher(Map_Element*);
+void element_init_right_trigger(Map_Element*);
+void element_init_left_trigger(Map_Element*);
 
 #endif /* Map_Element_h */

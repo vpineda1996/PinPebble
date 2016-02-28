@@ -18,6 +18,8 @@ void map_init(Ball*);
 void map_render(GContext *ctx, int window_y_offset);
 void map_tick();
 void map_deinit();
+void activateLeftTrigger();
+void activateRightTrigger();
 void launch_ball();
 
 #endif /* Map_h */

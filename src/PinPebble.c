@@ -19,9 +19,10 @@ Ball *ball = NULL;
 
 static void game_init();
 static void start_game();
-static void pause_game();
-static void resume_game();
 static void stop_game();
+
+static void moveLeftTrigger();
+static void moveRightTrigger();
 
 static void game_window_load(Window*);
 static void game_window_unload(Window*);
@@ -52,28 +53,21 @@ static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
   text_layer_set_text(text_layer, "Down");
 }
 
-
-static void pause_handler(ClickRecognizerRef recognizer, void *context) {
-  if (game_state == GAME) {
-    text_layer_set_text(text_layer, "PAUSE");
-    game_state = PAUSE;
-  } else if (game_state == PAUSE) {
-    text_layer_set_text(text_layer, "RESUME");
-    game_state = GAME;
-  }
-}
 static void resume_handler(ClickRecognizerRef recognizer, void *context) {
   if (game_state == GAME) {
 
   }
 }
 
-static void stop_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(text_layer, "BACK TO MENU");
+static void game_down_handler(ClickRecognizerRef recognizer, void *context) {
   if (game_state == GAME) {
-    stop_game();
-    window_stack_pop(game_window);
-    game_state = MENU;
+      moveLeftTrigger();
+  }
+}
+
+static void game_up_handler(ClickRecognizerRef recognizer, void *context) {
+  if (game_state == GAME) {
+      moveRightTrigger();
   }
 }
 
@@ -89,9 +83,9 @@ static void menu_click(void *context) {
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
 }
 static void game_click(void *context) {
-  window_single_click_subscribe(BUTTON_ID_SELECT, stop_handler);
-  window_single_click_subscribe(BUTTON_ID_UP, pause_handler);
-  window_single_click_subscribe(BUTTON_ID_DOWN,ingame_handler);
+  window_single_click_subscribe(BUTTON_ID_SELECT, ingame_handler);
+  window_single_click_subscribe(BUTTON_ID_UP, game_up_handler);
+  window_single_click_subscribe(BUTTON_ID_DOWN, game_down_handler);
 }
 
 
@@ -167,18 +161,6 @@ static void start_game() {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "start game");
 }
 
-static void pause_game() {
-  stop_game();
-  game_state = PAUSE;
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "pause game");
-}
-
-static void resume_game() {
-  next_tick();
-  game_state = GAME;
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "resume game");
-}
-
 static void stop_game() {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "stop game");
   if (tick_timer != NULL) {
@@ -191,6 +173,14 @@ static void stop_game() {
 static void game_deinit(void) {
   window_destroy(game_window);
 }
+
+static void moveLeftTrigger(){
+    activateLeftTrigger();
+}
+static void moveRightTrigger(){
+    activateRightTrigger();
+}
+
 
 // HELPERS
 static short getScreenOffset() {
