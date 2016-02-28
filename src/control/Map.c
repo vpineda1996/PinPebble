@@ -38,6 +38,9 @@ void map_tick(){
     }
 }
 
+void launch_ball() {
+  launcher.collide(&launcher, ball);
+}
 void map_deinit(){
     free(map_elements);
 }
