@@ -31,11 +31,18 @@ static void element_dealloc_default(Map_Element*);
 static void element_dealloc_trigger(Map_Element*);
 
 
+#define BUMP_DIAMETER 20
+
+static short offsetsX[] = {MAP_WIDTH / 2 - BUMP_DIAMETER / 2, MAP_WIDTH / 2 - BUMP_DIAMETER / 2, BUMP_DIAMETER, MAP_WIDTH - BUMP_DIAMETER * 2};
+static short offsetsY[] = {MAP_HEIGHT / 2,  BUMP_DIAMETER * 1.5, BUMP_DIAMETER * 3, BUMP_DIAMETER * 3};
+static int bumperIterator = 0;
+
 void element_init_default(Map_Element *elem){
-    elem->height = 60;
-    elem->width = 60;
-    elem->offset_x = 30;
-    elem->offset_y = 60;
+    elem->height = BUMP_DIAMETER;
+    elem->width = BUMP_DIAMETER;
+    elem->offset_x = offsetsX[bumperIterator % 4];
+    elem->offset_y = offsetsY[bumperIterator % 4];
+    bumperIterator++;
 }
 
 static void element_dealloc_default(Map_Element* this){
@@ -58,14 +65,18 @@ static void element_render_bump(Map_Element *this, GContext *ctx, int window_y_o
         int centerX = (this->offset_x + this->width / 2);
         int centerY = ((this->offset_y - window_y_offset) + this->height / 2);
         graphics_draw_circle(ctx, GPoint(centerX, centerY), this->width / 2);
-        graphics_draw_circle(ctx, GPoint(centerX, centerY), this->width / 2 - 5);
+        if((int)this->state > 0){
+            this->state--;
+            graphics_fill_circle(ctx, GPoint(centerX, centerY), this->width / 2 - 5);
+        }else {
+            graphics_draw_circle(ctx, GPoint(centerX, centerY), this->width / 2 + 5);
+        }
     }
 }
 
 static int element_collide_bump(Map_Element *this, Ball *b){
     int elementCenterX = this->offset_x + this->width / 2;
     int elementCenterY = this->offset_y + this->height / 2;
-
     if(abs_c(b->x - elementCenterX) < this->width / 2 && abs_c(b->y - elementCenterY) < this->height / 2){ // inside circle , calculate new direction
         Vector2 direction2ball = {
             .x = (float)(b->x - elementCenterX),
@@ -84,6 +95,7 @@ static int element_collide_bump(Map_Element *this, Ball *b){
         vectorMulitplyByScalar(&direction2ball, oldMagnitude);
         b->dx = ceil(direction2ball.x) == 0 ? floor(direction2ball.x) : ceil(direction2ball.x);
         b->dy = ceil(direction2ball.y) == 0 ? floor(direction2ball.y) : ceil(direction2ball.y);
+        this->state = (void*) 10;
         return true;
 
     }else return false;
@@ -156,6 +168,9 @@ static int element_collide_launcher(Map_Element *this, Ball *ball){
     ball->dx = -ball->dx;
 
     if (ball->y + ball->radius > this->offset_y + (int)this->state * 15) {
+      ball->dx = 1;
+      ball->dy = -25;
+      ball->_tempY = -25;
       return true;
     }
   } else if (ball->x - ball->radius < this->offset_x && ball->x + ball->radius > this->offset_x && ball->y > this->offset_y) {
@@ -186,7 +201,7 @@ static int element_collide_launcher_left(Map_Element *this, Ball *ball){
     ball->dx = -ball->dx;
 
     if (ball->y + ball->radius > this->offset_y + (int)this->state * 15) {
-      ball->dx = 0;
+      ball->dx = 1;
       ball->dy = -25;
       ball->_tempY = -25;
       return true;
