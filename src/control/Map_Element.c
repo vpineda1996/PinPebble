@@ -68,11 +68,8 @@ static int _within_circle(Map_Element *this, Ball* b){
         float oldMagnitude = magnitdeOfVector(&directionOfBall);
 
         transformToUnitVector(&direction2ball);
-        transformToUnitVector(&directionOfBall);
 
-        float dot_prod = dotProduct(&direction2ball, &directionOfBall);
-        add2VectorsAndSaveOnFirst(&direction2ball, &directionOfBall);
-        vectorMulitplyByScalar(&direction2ball, abs_c(dot_prod) * oldMagnitude);
+        vectorMulitplyByScalar(&direction2ball, oldMagnitude);
         b->dx = ceil(direction2ball.x) == 0 ? floor(direction2ball.x) : ceil(direction2ball.x);
         b->dy = ceil(direction2ball.y) == 0 ? floor(direction2ball.y) : ceil(direction2ball.y);
         return true;
