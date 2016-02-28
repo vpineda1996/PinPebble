@@ -22,6 +22,16 @@ void map_render(GContext *ctx, int window_y_offset){
     }
 }
 
+void map_tick(){
+    int i;
+    for (i = 0; i < NUMBER_OF_MAP_ELEM; i++) {
+        int ret = map_elements[i].collide(&map_elements[i], ball);
+        if (ret){
+            break;
+        }
+    }
+}
+
 void map_deinit(){
     free(map_elements);
     free(ball);
