@@ -26,6 +26,8 @@ static void stop_game();
 static void game_window_load(Window*);
 static void game_window_unload(Window*);
 
+static short getScreenOffset();
+
 static void tick();
 static void next_tick();
 static void render(Layer*, GContext*);
@@ -182,7 +184,18 @@ static void game_deinit(void) {
   window_destroy(game_window);
 }
 
-
+// HELPERS
+static short getScreenOffset() {
+  short y = ball->y;
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "%d", y);
+  if (y < MAP_HEIGHT / 4 - ball->radius) {
+    return 0;
+  } else if (y > MAP_HEIGHT / 4 * 3 - ball->radius) {
+    return MAP_HEIGHT / 2;
+  } else {
+    return y + ball->radius - MAP_HEIGHT / 4;
+  }
+}
 
 // MAIN LOAD
 
@@ -210,6 +223,7 @@ static void next_tick() {
   tick_timer = app_timer_register(1000 / FRAME_RATE, tick, NULL);
 }
 static void render(Layer *layer, GContext *ctx) {
-  map_render(ctx, 0);
-  ball->render(ball, ctx, 0);
+  short y = getScreenOffset();
+  map_render(ctx, y);
+  ball->render(ball, ctx, y);
 }

@@ -52,10 +52,8 @@ static int element_collide_bump(Map_Element *this, Ball *b){
 void element_init_launcher(Map_Element *launcher){
     launcher->height = 45;
     launcher->width = 20;
-    launcher->offset_x = SCREEN_WIDTH - launcher->width;
-    launcher->offset_y = SCREEN_HEIGHT - launcher->height;
-    // launcher->offset_x = MAP_WIDTH - launcher->width;
-    // launcher->offset_y = MAP_HEIGHT - launcher->height;
+    launcher->offset_x = MAP_WIDTH - launcher->width;
+    launcher->offset_y = MAP_HEIGHT - launcher->height;
     launcher->state = (void*) 1;
     launcher->render = element_render_launcher;
     launcher->collide = element_collide_launcher;
