@@ -28,9 +28,6 @@ typedef struct Map_Element{
 
 void element_init_default(Map_Element*);
 void element_init_circle(Map_Element*);
-
 void element_init_launcher(Map_Element*);
-static void element_render_launcher(Map_Element*, GContext*, int);
-static int element_collide_launcher(Map_Element*, Ball*);
 
 #endif /* Map_Element_h */

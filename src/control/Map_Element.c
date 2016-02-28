@@ -12,6 +12,9 @@
 static void element_render_circle(Map_Element*, GContext*, int);
 static int element_collide_circle(Map_Element*, Ball*);
 
+static void element_render_launcher(Map_Element*, GContext*, int);
+static int element_collide_launcher(Map_Element*, Ball*);
+
 void element_init_default(Map_Element *elem){
     elem->height = 30;
     elem->width = 30;
