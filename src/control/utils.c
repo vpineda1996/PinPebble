@@ -36,23 +36,9 @@ float magnitdeOfVector(Vector2 *vect){
     return sqrt_f(power);
 }
 
-float dotProduct(Vector2 *vect1, Vector2 *vect2){
-    return vect1->x * vect2->x + vect1->y * vect2->y;
-}
-
-void add2VectorsAndSaveOnFirst(Vector2 *vect1, Vector2 *vect2){
-    vect1->x = vect1->x + vect2->x;
-    vect1->y = vect1->y + vect2->y;
-}
-
 void vectorMulitplyByScalar(Vector2 *vect, float scalar){
     vect->x = vect->x * scalar;
     vect->y = vect->y * scalar;
-}
-
-void negateVector(Vector2* vect){
-    vect->x = -vect->x;
-    vect->y = -vect->y;
 }
 
 float abs_c(float num){
