@@ -17,7 +17,7 @@ void ball_init(Ball* this){
     this->render = ball_render;
     this->radius = 6;
     this->x = this->radius;
-    this->y = SCREEN_HEIGHT - this->radius;
+    this->y = this->radius;
     this->dx = -2;
     this->dy = -2;
     this->_dt = .2;

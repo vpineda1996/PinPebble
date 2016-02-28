@@ -14,11 +14,25 @@ static int element_collide_bump(Map_Element*, Ball*);
 static void element_render_launcher(Map_Element*, GContext*, int);
 static int element_collide_launcher(Map_Element*, Ball*);
 
+static void element_render_right_trigger(Map_Element*, GContext*, int);
+static int element_collide_right_trigger(Map_Element*, Ball*);
+
+static void element_render_left_trigger(Map_Element*, GContext*, int);
+static int element_collide_left_trigger(Map_Element*, Ball*);
+
+static void element_triggered_trigger(Map_Element* this);
+
+static void element_dealloc_default(Map_Element*);
+static void element_dealloc_trigger(Map_Element*);
+
 void element_init_default(Map_Element *elem){
     elem->height = 60;
     elem->width = 60;
     elem->offset_x = 30;
     elem->offset_y = 60;
+}
+
+static void element_dealloc_default(Map_Element* this){
 }
 
 // --------------------
@@ -29,10 +43,12 @@ void element_init_bump(Map_Element *bump){
     element_init_default(bump);
     bump->render = element_render_bump;
     bump->collide = element_collide_bump;
+    bump->dealloc = element_dealloc_default;
 }
 
 static void element_render_bump(Map_Element *this, GContext *ctx, int window_y_offset){
     if(within_bounds(window_y_offset, this)){
+        graphics_context_set_fill_color(ctx, GColorFromRGB(0,64,175));
         int centerX = (this->offset_x + this->width / 2);
         int centerY = ((this->offset_y - window_y_offset) + this->height / 2);
         graphics_draw_circle(ctx, GPoint(centerX, centerY), this->width / 2);
@@ -70,15 +86,18 @@ static int element_collide_bump(Map_Element *this, Ball *b){
 // --------------------
 // BASIC LAUNCHER FUNCTIONS
 // -------------------
+#define LAUNCHER_HEIGHT 45
+#define LAUNCHER_WIDTH 20
 
 void element_init_launcher(Map_Element *launcher){
-    launcher->height = 45;
-    launcher->width = 20;
+    launcher->height = LAUNCHER_HEIGHT;
+    launcher->width = LAUNCHER_WIDTH;
     launcher->offset_x = MAP_WIDTH - launcher->width;
     launcher->offset_y = MAP_HEIGHT - launcher->height;
     launcher->state = (void*) 1;
     launcher->render = element_render_launcher;
     launcher->collide = element_collide_launcher;
+    launcher->dealloc = element_dealloc_default;
 }
 
 static void element_render_launcher(Map_Element *this, GContext *ctx, int window_y_offset){
@@ -104,4 +123,105 @@ static int element_collide_launcher(Map_Element *this, Ball *ball){
     return true;
   }
   return false;
+}
+
+// -----------------------------------------------------------------------------
+// TRIGGERS
+// -----------------------------------------------------------------------------
+#define TRIGGER_WIDTH 45
+#define TRIGGER_HEIGHT 25
+#define SIDE_OFFSET LAUNCHER_WIDTH
+#define SPACING 1
+#define TIME_UP_TRIGGER 10
+#define TIME_TRANSITION_TRIGGER 8
+#define ANGLE_TRIGGER (0x10000 / 8)
+#define STEPS_ANGLE_TRIGGER (0x10000 / 8) / TIME_TRANSITION_TRIGGER
+
+void element_init_right_trigger(Map_Element* this){
+    this->height = TRIGGER_HEIGHT;
+    this->width = TRIGGER_WIDTH;
+    this->offset_x = MAP_WIDTH - SIDE_OFFSET - SPACING;
+    this->offset_y = MAP_HEIGHT - this->height * 2;
+    this->state = (void*) 1;
+    this->render = element_render_right_trigger;
+    this->collide = element_collide_right_trigger;
+    this->dealloc = element_dealloc_trigger;
+    TriggerState *ts = malloc(sizeof(TriggerState));
+    ts->rotation = 0;
+    ts->triggered = element_triggered_trigger;
+    this->state = (void*) ts;
+}
+
+void element_init_left_trigger(Map_Element* this){
+    this->height = TRIGGER_HEIGHT;
+    this->width = TRIGGER_WIDTH;
+    this->offset_x = SIDE_OFFSET + SPACING;
+    this->offset_y = MAP_HEIGHT - this->height * 2;
+    this->render = element_render_left_trigger;
+    this->collide = element_collide_left_trigger;
+    this->dealloc = element_dealloc_trigger;
+    TriggerState *ts = malloc(sizeof(TriggerState));
+    ts->rotation = 0;
+    ts->triggered = element_triggered_trigger;
+    ts->transition_time = 0;
+    ts->up_time = 0;
+    this->state = (void*) ts;
+}
+
+static void element_triggered_trigger(Map_Element* this){
+    ((TriggerState *)(this->state))->transition_time = TIME_TRANSITION_TRIGGER;
+    ((TriggerState *)(this->state))->up_time = TIME_UP_TRIGGER;
+}
+
+static void element_render_right_trigger(Map_Element* this, GContext* ctx, int window_y_offset){
+    TriggerState *ts = (TriggerState *) this->state;
+    GPoint path[] = {GPoint(0,0), GPoint(0,TRIGGER_HEIGHT), GPoint(-TRIGGER_WIDTH, TRIGGER_HEIGHT)};
+    GPath il = (GPath) {
+        .num_points = 3,
+        .points = path,
+        .rotation = ts->rotation,
+        .offset = GPoint(this->offset_x, this->offset_y - window_y_offset)
+    };
+
+    if(ts->up_time > 0){
+        if(ts->transition_time > 0){
+            ts->rotation = STEPS_ANGLE_TRIGGER * (TIME_TRANSITION_TRIGGER - ts->transition_time);
+            ts->transition_time--;
+        }else ts->up_time--;
+    }else ts->rotation = sin_lookup(0);
+
+    gpath_draw_filled(ctx,&il);
+
+    graphics_context_set_fill_color(ctx, GColorFromRGB(0,64,175));
+}
+
+static int element_collide_right_trigger(Map_Element* this, Ball* b){
+    return false;
+}
+
+static void element_render_left_trigger(Map_Element* this, GContext* ctx, int window_y_offset){
+    TriggerState *ts = (TriggerState *) this->state;
+    GPoint path[] = {GPoint(0,0), GPoint(0,TRIGGER_HEIGHT), GPoint(TRIGGER_WIDTH, TRIGGER_HEIGHT)};
+    GPath il = (GPath) {
+        .num_points = 3,
+        .points = path,
+        .rotation = -ts->rotation,
+        .offset = GPoint(this->offset_x, this->offset_y - window_y_offset)
+    };
+    if(ts->up_time > 0){
+        if(ts->transition_time > 0){
+            ts->rotation = STEPS_ANGLE_TRIGGER * (TIME_TRANSITION_TRIGGER - ts->transition_time);
+            ts->transition_time--;
+        }else ts->up_time--;
+    }else ts->rotation = sin_lookup(0);
+    gpath_draw_filled(ctx,&il);
+
+}
+
+static int element_collide_left_trigger(Map_Element* this, Ball* b){
+    return false;
+}
+
+static void element_dealloc_trigger(Map_Element* this){
+    free(this->state);
 }
