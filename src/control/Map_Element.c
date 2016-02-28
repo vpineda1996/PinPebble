@@ -13,6 +13,7 @@ static int element_collide_bump(Map_Element*, Ball*);
 
 static void element_render_launcher(Map_Element*, GContext*, int);
 static int element_collide_launcher(Map_Element*, Ball*);
+static int element_collide_launcher_left(Map_Element*, Ball*);
 
 // TRIGERS
 static void element_render_right_trigger(Map_Element*, GContext*, int);
@@ -94,7 +95,7 @@ static int element_collide_bump(Map_Element *this, Ball *b){
 #define LAUNCHER_HEIGHT 45
 #define LAUNCHER_WIDTH 20
 
-void element_init_launcher(Map_Element *launcher){
+void element_init_launcher_right(Map_Element *launcher){
     launcher->height = LAUNCHER_HEIGHT;
     launcher->width = LAUNCHER_WIDTH;
     launcher->offset_x = MAP_WIDTH - launcher->width;
@@ -103,6 +104,16 @@ void element_init_launcher(Map_Element *launcher){
     launcher->render = element_render_launcher;
     launcher->collide = element_collide_launcher;
     launcher->dealloc = element_dealloc_default;
+}
+
+void element_init_launcher_left(Map_Element *launcher){
+    launcher->height = LAUNCHER_HEIGHT;
+    launcher->width = LAUNCHER_WIDTH;
+    launcher->offset_x = 0;
+    launcher->offset_y = MAP_HEIGHT - launcher->height;
+    launcher->state = (void*) 2;
+    launcher->render = element_render_launcher;
+    launcher->collide = element_collide_launcher_left;
 }
 
 static void element_render_launcher(Map_Element *this, GContext *ctx, int window_y_offset){
@@ -117,16 +128,66 @@ static void element_render_launcher(Map_Element *this, GContext *ctx, int window
     }
 }
 
+
 static int element_collide_launcher(Map_Element *this, Ball *ball){
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "launcher initiated operation");
   int power = (int) this->state;
-  //if (ball->x + ball->radius > SCREEN_WIDTH - this->width && ball->y + ball->radius + 5 > SCREEN_HEIGHT - this->height) {
-  if (true) {
-    ball->dx = -.5;
-    ball->dy = -25;
-    ball->_tempY = -25;
+
+  // go inside from center
+  if (ball->y + ball->radius > this->offset_y && ball->x + ball->radius > this->offset_x && ball->x + ball->radius < this->offset_x) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "launcher initiated operation");
+    if (ball->x - ball->radius < this->offset_x) {
+      ball->x = this->offset_x;
+    } else if (ball->x + ball->radius > this->offset_x + this->width) {
+      ball->x = this->offset_x + this->width - ball->radius;
+    } else {
+      // unexpected ?
+    }
+    ball->dx = -ball->dx;
+
+    if (ball->y + ball->radius > this->offset_y + (int)this->state * 15) {
+      return true;
+    }
+  } else if (ball->x - ball->radius < this->offset_x && ball->x + ball->radius > this->offset_x && ball->y > this->offset_y) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "ball touching right launcher");
+    // reflect back to right side
+    ball->x = this->offset_x - ball->radius - 1;
+    ball->dx = -ball->dx;
     return true;
   }
+  //if (ball->x + ball->radius > SCREEN_WIDTH - this->width && ball->y + ball->radius + 5 > SCREEN_HEIGHT - this->height) {
+  return false;
+}
+
+static int element_collide_launcher_left(Map_Element *this, Ball *ball){
+  int power = (int) this->state;
+  //if (ball->x + ball->radius > SCREEN_WIDTH - this->width && ball->y + ball->radius + 5 > SCREEN_HEIGHT - this->height) {
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "x: %d, y: %d, @x: %d", ball->x, ball->y, this->offset_x + this->width);
+
+  // go inside from center
+  if (ball->y + ball->radius > this->offset_y && ball->x + ball->radius > this->offset_x && ball->x < this->offset_x + this->width) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "launcher initiated operation");
+    if (ball->x - ball->radius < this->offset_x) {
+      ball->x = this->offset_x;
+    } else if (ball->x + ball->radius > this->offset_x + this->width) {
+      ball->x = this->offset_x + this->width - ball->radius;
+    }
+    ball->dx = -ball->dx;
+
+    if (ball->y + ball->radius > this->offset_y + (int)this->state * 15) {
+      ball->dx = 0;
+      ball->dy = -25;
+      ball->_tempY = -25;
+      return true;
+    }
+  } else if (ball->x - ball->radius < this->offset_x + this->width && ball->x + ball->radius > this->offset_x + this->width && ball->y > this->offset_y) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "launcher wall touched by side");
+    // reflect back to right side
+    ball->x = this->offset_x + this->width + ball->radius + 1;
+    ball->dx = -ball->dx;
+    return true;
+  }
+
   return false;
 }
 

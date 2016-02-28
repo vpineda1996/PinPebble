@@ -38,8 +38,9 @@ typedef struct TriggerState {
 
 void element_init_default(Map_Element*);
 void element_init_bump(Map_Element*);
-void element_init_launcher(Map_Element*);
 void element_init_right_trigger(Map_Element*);
 void element_init_left_trigger(Map_Element*);
+void element_init_launcher_right(Map_Element*);
+void element_init_launcher_left(Map_Element*);
 
 #endif /* Map_Element_h */
