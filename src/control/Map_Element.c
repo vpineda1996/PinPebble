@@ -7,7 +7,6 @@
 //
 
 #include "Map_Element.h"
-#include "../env.h"
 
 static void element_render_bump(Map_Element*, GContext*, int);
 static int element_collide_bump(Map_Element*, Ball*);
@@ -26,6 +25,9 @@ void element_init_default(Map_Element *elem){
 // BASIC CIRCLE FUNCTIONS
 // -------------------
 
+static int _within_circle(Map_Element *this, Ball* b);
+static void _updateDirection(Map_Element *this, Ball *b);
+
 void element_init_bump(Map_Element *bump){
     element_init_default(bump);
     bump->render = element_render_bump;
@@ -42,7 +44,35 @@ static void element_render_bump(Map_Element *this, GContext *ctx, int window_y_o
 }
 
 static int element_collide_bump(Map_Element *this, Ball *b){
+    if(_within_circle(this, b)){
+        _updateDirection(this,b);
+    }
+    return false;
+}
+
+static int _within_circle(Map_Element *this, Ball* b){
+    int elementCenterX = this->offset_x + this->width / 2;
+    int elementCenterY = this->offset_y + this->height / 2;
+
+    Vector2 *direction2ball = malloc(sizeof(Vector2));
+    Vector2 *directionOfBall = malloc(sizeof(Vector2));
+
+    direction2ball->x = (double)(b->x - elementCenterX);
+    direction2ball->y = (double)(b->y - elementCenterY);
+
+    directionOfBall->x = (double)(b->x);
+    directionOfBall->y = (double)(b->y);
+
+    transformToUnitVector(direction2ball);
+    transformToUnitVector(directionOfBall);
+
+    free(directionOfBall);
+    free(direction2ball);
     return 0;
+}
+
+static void _updateDirection(Map_Element *this, Ball *b){
+
 }
 
 // --------------------

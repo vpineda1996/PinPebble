@@ -23,3 +23,11 @@ int within_bounds(int window_y_offset, Map_Element *element){
         return (element_y_offset - window_y_offset) + height > 0;
     }return true;
 }
+
+void transformToUnitVector(Vector2* vect){
+    double x = vect->x, y = vect->y;
+    double power = x*x + y*y;
+    double magnitude = sqrt(power);
+    vect->x = vect->x/magnitude;
+    vect->y = vect->y/magnitude;
+}
