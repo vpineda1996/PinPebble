@@ -9,7 +9,7 @@
 #include "utils.h"
 
 int within_bounds(int window_y_offset, Map_Element *element){
-    int element_x_offset = element->offset_x,
+    short element_x_offset = element->offset_x,
         element_y_offset = element->offset_y,
         width = element->width,
         height = element->height;
