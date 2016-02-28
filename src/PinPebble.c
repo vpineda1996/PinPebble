@@ -1,4 +1,6 @@
-#include <pebble.h>
+#include "control/Map.h"
+
+
 #include "env.h"
 
 #define MENU 1
@@ -13,15 +15,20 @@ static BitmapLayer *bg_layer = NULL;
 static GBitmap *bg_bitmap = NULL;
 static Layer *canvas;
 
+Ball *ball = NULL;
+
 static void game_init();
 static void start_game();
 static void pause_game();
 static void resume_game();
 static void stop_game();
 
+static void game_window_load(Window*);
+static void game_window_unload(Window*);
+
 static void tick();
 static void next_tick();
-static void render();
+static void render(Layer*, GContext*);
 // -----------------------------------------------------------------------------------------
 // Menu Window
 
@@ -92,6 +99,8 @@ static void window_unload(Window *window) {
   text_layer_destroy(text_layer);
 }
 static void game_window_load(Window *window) {
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "game window load");
   Layer *window_layer = window_get_root_layer(window);
   GRect window_bounds = layer_get_bounds(window_layer);
 
@@ -105,7 +114,7 @@ static void game_window_load(Window *window) {
   layer_add_child(window_layer, canvas);
 }
 
-static void gane_window_unload(Window *window) {
+static void game_window_unload(Window *window) {
   text_layer_destroy(text_layer);
 }
 
@@ -131,10 +140,13 @@ static void game_init(void) {
   game_window = window_create();
   window_set_click_config_provider(game_window, game_click);
   window_set_window_handlers(game_window, (WindowHandlers) {
-    .load = window_load,
-    .unload = window_unload,
+    .load = game_window_load,
+    .unload = game_window_unload,
   });
   const bool animated = true;
+
+  map_init(ball);
+
   window_stack_push(game_window, animated);
 }
 
@@ -186,11 +198,18 @@ static void tick() {
   // ...
   APP_LOG(APP_LOG_LEVEL_DEBUG, "refresh");
 
+  layer_mark_dirty(canvas);
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "call layer mark dirty");
+
+
   next_tick();
 }
 static void next_tick() {
   tick_timer = app_timer_register(1000 / FRAME_RATE, tick, NULL);
 }
-static void render() {
+static void render(Layer *layer, GContext *ctx) {
 
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "render");
+  map_render(ctx, 0);
 }
