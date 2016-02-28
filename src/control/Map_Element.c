@@ -14,6 +14,7 @@ static int element_collide_bump(Map_Element*, Ball*);
 static void element_render_launcher(Map_Element*, GContext*, int);
 static int element_collide_launcher(Map_Element*, Ball*);
 
+// TRIGERS
 static void element_render_right_trigger(Map_Element*, GContext*, int);
 static int element_collide_right_trigger(Map_Element*, Ball*);
 
@@ -22,8 +23,12 @@ static int element_collide_left_trigger(Map_Element*, Ball*);
 
 static void element_triggered_trigger(Map_Element* this);
 
+static void _update_on_tick_trigger_state(TriggerState *ts);
+// END OF TRIGERS
+
 static void element_dealloc_default(Map_Element*);
 static void element_dealloc_trigger(Map_Element*);
+
 
 void element_init_default(Map_Element *elem){
     elem->height = 60;
