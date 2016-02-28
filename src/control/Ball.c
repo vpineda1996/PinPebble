@@ -7,6 +7,7 @@
 //
 
 #include "Ball.h"
+#include <math.h>
 
 static void ball_tick(Ball*);
 static void ball_render(Ball* this, GContext *ctx, int window_y_offset);
@@ -15,36 +16,38 @@ void ball_init(Ball* this){
     this->tick = ball_tick;
     this->render = ball_render;
     this->radius = 6;
-    this->x = SCREEN_WIDTH - this->radius * 2 ;
-    this->y = SCREEN_HEIGHT - this->radius * 2;
-    this->dx = -5;
-    this->dy = -5;
+    this->x = SCREEN_WIDTH - this->radius ;
+    this->y = SCREEN_HEIGHT - this->radius;
+    this->dx = -2;
+    this->dy = -2;
 }
 
 static void ball_tick(Ball* this){
     int tempX = this->x + this->dx;
     int tempY = this->y + this->dy;
-    if(tempX > MAP_WIDTH || tempX < 0){
-        if (tempX > MAP_WIDTH){
-            tempX = tempX - (MAP_WIDTH - tempX);
+    if(tempX > MAP_WIDTH - this->radius || tempX < this->radius){
+        if (tempX > MAP_WIDTH - this->radius){
+            tempX = MAP_WIDTH - this->radius;
         }else {
-            tempX = -tempX;
+            tempX = this->radius + abs(tempX);
         }
         this->dx= -this->dx;
     }
 
-    if(tempY > MAP_HEIGHT || tempY < 0){
-        if (tempY > MAP_HEIGHT){
-            tempY = tempY - (MAP_HEIGHT - tempY);
+    if(tempY > MAP_HEIGHT - this->radius || tempY < this->radius){
+        if (tempY > MAP_HEIGHT - this->radius){
+            tempY = MAP_HEIGHT - this->radius;
         }else {
-            tempY = -tempY;
+            tempY = this->radius + abs(tempY);
         }
         this->dy= -this->dy;
     }
+    this->x = tempX;
+    this->y = tempY;
 }
 
 static void ball_render(Ball* this, GContext *ctx, int window_y_offset){
-    int centerX = (this->x - this->radius);
-    int centerY = ((this->y - window_y_offset) - this->radius);
+    int centerX = this->x;
+    int centerY = (this->y - window_y_offset);
     graphics_fill_circle(ctx, GPoint(centerX, centerY), this->radius);
 }
