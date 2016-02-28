@@ -6,12 +6,13 @@
 //
 //
 
-#ifndef Map_Element_h
-#define Map_Element_h
-
 #include "pebble.h"
 #include "Ball.h"
 #include "utils.h"
+
+
+#ifndef Map_Element_h
+#define Map_Element_h
 
 typedef struct Map_Element{
     void *state;

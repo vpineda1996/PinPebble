@@ -17,8 +17,8 @@
 Map_Element *map_elements;
 Ball *ball;
 
-void map_init();
-void map_render(GContext*, int);
+void map_init(Ball*);
+void map_render(GContext *ctx, int window_y_offset);
 void map_deinit();
 
 

@@ -9,9 +9,9 @@
 #include "Map.h"
 #define NUMBER_OF_MAP_ELEM 1
 
-void map_init(){
+void map_init(Ball* b){
     map_elements = calloc(NUMBER_OF_MAP_ELEM, sizeof(Map_Element));
-    ball = calloc(1, sizeof(Ball));
+    ball = b;
     element_init_circle(&map_elements[0]);
 }
 

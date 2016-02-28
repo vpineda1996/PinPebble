@@ -1,6 +1,6 @@
 //
 //  pebble.h
-//  
+//
 //
 //  Created by Victor Pineda on 2016-02-27.
 //
@@ -13,7 +13,6 @@
 
 // COMMENT ALL OF THE FOLLOWING WHEN COMPILING
 #include <stdlib.h>
-typedef void Ball;
 typedef void GContext;
 
 

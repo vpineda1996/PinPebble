@@ -28,8 +28,9 @@ void element_init_circle(Map_Element *circle){
 }
 
 static void element_render_circle(Map_Element *this, GContext *ctx, int window_y_offset){
-    if(within_bounds(window_y_offset, this->offset_x, this->offset_y, this->width, this->height)){
-        
+    if(within_bounds(window_y_offset, this)){
+        // graphics_draw_circle(ctx, GPoint((this->offset_x + this->width / 2),
+        //                                     ((offset_y - window_y_offset) + this->height / 2)), width/2);
     }
 }
 

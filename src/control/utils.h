@@ -6,11 +6,12 @@
 //
 //
 
-
 #ifndef utils_h
 #define utils_h
 
-int within_bounds(int window_y_offset, int element_x_offset, int element_y_offset,
-                    int width, int height);
+#include "Map_Element.h"
+#include "../env.h"
+
+int within_bounds(int window_y_offset, Map_Element *element);
 
 #endif /* Map_h */
