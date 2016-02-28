@@ -7,7 +7,7 @@
 //
 
 #include <stdio.h>
-#include "control/Map.h"
+#include "../src/control/Map.h"
 #include <assert.h>
 
 int main(){
