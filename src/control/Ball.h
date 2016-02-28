@@ -17,8 +17,12 @@ typedef struct Ball {
     short radius;
     short x;
     short y;
-    short dx;
-    short dy;
+    float dx;
+    float dy;
+    float _dt;
+    float _tempY;
+    float _gravity;
+
     void (* tick)(struct Ball*);
     void (* render)(struct Ball*, GContext*, int);
 } Ball;
