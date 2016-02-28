@@ -7,6 +7,7 @@
 //
 
 #include "Map_Element.h"
+#include <math.h>
 
 static void element_render_bump(Map_Element*, GContext*, int);
 static int element_collide_bump(Map_Element*, Ball*);
@@ -78,7 +79,7 @@ static int element_collide_bump(Map_Element *this, Ball *b){
     int elementCenterX = this->offset_x + this->width / 2;
     int elementCenterY = this->offset_y + this->height / 2;
     if(abs_c(b->x - elementCenterX) < this->width / 2 && abs_c(b->y - elementCenterY) < this->height / 2){ // inside circle , calculate new direction
-        Vector2 direction2ball = {
+       Vector2 direction2ball = {
             .x = (float)(b->x - elementCenterX),
             .y = (float)(b->y - elementCenterY)
         };
@@ -157,7 +158,6 @@ static int element_collide_launcher(Map_Element *this, Ball *ball){
 
   // go inside from center
   if (ball->y + ball->radius > this->offset_y && ball->x + ball->radius > this->offset_x && ball->x + ball->radius < this->offset_x) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "launcher initiated operation");
     if (ball->x - ball->radius < this->offset_x) {
       ball->x = this->offset_x;
     } else if (ball->x + ball->radius > this->offset_x + this->width) {
@@ -174,7 +174,6 @@ static int element_collide_launcher(Map_Element *this, Ball *ball){
       return true;
     }
   } else if (ball->x - ball->radius < this->offset_x && ball->x + ball->radius > this->offset_x && ball->y > this->offset_y) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "ball touching right launcher");
     // reflect back to right side
     ball->x = this->offset_x - ball->radius - 1;
     ball->dx = -ball->dx;
@@ -188,11 +187,9 @@ static int element_collide_launcher_left(Map_Element *this, Ball *ball){
   int power = (int) this->state;
   //if (ball->x + ball->radius > SCREEN_WIDTH - this->width && ball->y + ball->radius + 5 > SCREEN_HEIGHT - this->height) {
 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "x: %d, y: %d, @x: %d", ball->x, ball->y, this->offset_x + this->width);
 
   // go inside from center
   if (ball->y + ball->radius > this->offset_y && ball->x + ball->radius > this->offset_x && ball->x < this->offset_x + this->width) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "launcher initiated operation");
     if (ball->x - ball->radius < this->offset_x) {
       ball->x = this->offset_x;
     } else if (ball->x + ball->radius > this->offset_x + this->width) {
@@ -207,7 +204,6 @@ static int element_collide_launcher_left(Map_Element *this, Ball *ball){
       return true;
     }
   } else if (ball->x - ball->radius < this->offset_x + this->width && ball->x + ball->radius > this->offset_x + this->width && ball->y > this->offset_y) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "launcher wall touched by side");
     // reflect back to right side
     ball->x = this->offset_x + this->width + ball->radius + 1;
     ball->dx = -ball->dx;
@@ -234,13 +230,14 @@ void element_init_right_trigger(Map_Element* this){
     this->width = TRIGGER_WIDTH;
     this->offset_x = MAP_WIDTH - SIDE_OFFSET - SPACING;
     this->offset_y = MAP_HEIGHT - this->height * 2;
-    this->state = (void*) 1;
     this->render = element_render_right_trigger;
     this->collide = element_collide_right_trigger;
     this->dealloc = element_dealloc_trigger;
     TriggerState *ts = malloc(sizeof(TriggerState));
     ts->rotation = 0;
     ts->triggered = element_triggered_trigger;
+    ts->transition_time = 0;
+    ts->up_time = 0;
     this->state = (void*) ts;
 }
 
@@ -279,7 +276,39 @@ static void element_render_right_trigger(Map_Element* this, GContext* ctx, int w
 }
 
 static int element_collide_right_trigger(Map_Element* this, Ball* b){
-    return false;
+  TriggerState *ts = (TriggerState*) this->state;
+  int x1 = this->offset_x, y1 = this->offset_y;
+
+  int x = (cos_lookup(ts->rotation) * TRIGGER_WIDTH) / TRIG_MAX_RATIO + x1;
+  int y = (sin_lookup(ts->rotation) *TRIGGER_HEIGHT) / TRIG_MAX_RATIO + y1;
+
+
+  float gradient = (y - y1) / (x - x1);
+  float c = y1 - gradient * x1;
+  float result = gradient * b->x + c;
+
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "%i %i %i", (int)result, b->y, (int) gradient);
+  if (result - b->y  <= 5 && result - b->y >= 0 && b->x > x && b->x < x1) {
+    Vector2 direction2ball = {
+      .x = (float)(b->x - this->offset_x + this->width),
+      .y = (float)(b->y - y1)
+    };
+
+    Vector2 directionOfBall = {
+      .x = (float)(b->dx),
+      .y = (float)(b->dy)
+    };
+
+    float oldMagnitude = magnitdeOfVector(&directionOfBall);
+
+    transformToUnitVector(&direction2ball);
+
+    vectorMulitplyByScalar(&direction2ball, oldMagnitude);
+    b->dx = ceil(direction2ball.x) == 0 ? floor(direction2ball.x) : ceil(direction2ball.x);
+    b->dy = -10;
+    return true;
+  }
+  return false;
 }
 
 static void element_render_left_trigger(Map_Element* this, GContext* ctx, int window_y_offset){
@@ -296,7 +325,41 @@ static void element_render_left_trigger(Map_Element* this, GContext* ctx, int wi
 }
 
 static int element_collide_left_trigger(Map_Element* this, Ball* b){
-    return false;
+  TriggerState *ts = (TriggerState*) this->state;
+  int x1 = this->offset_x, y1 = this->offset_y;
+
+  int x = (cos_lookup(ts->rotation) * TRIGGER_WIDTH) / TRIG_MAX_RATIO + x1;
+  int y = (sin_lookup(ts->rotation) *TRIGGER_HEIGHT) / TRIG_MAX_RATIO + y1;
+
+
+  float gradient = (y - y1) / (x - x1);
+  float c = y1 - gradient * x1;
+  float result = gradient * b->x + c;
+
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "%i %i %i", (int)result, b->y, (int) gradient);
+  if (result - b->y  <= 5 && result - b->y >= 0 && b->x < x && b->x > x1) {
+    Vector2 direction2ball = {
+      .x = (float)(b->x - this->offset_x + this->width),
+      .y = (float)(b->y - y1)
+    };
+
+    Vector2 directionOfBall = {
+      .x = (float)(b->dx),
+      .y = (float)(b->dy)
+    };
+
+    float oldMagnitude = magnitdeOfVector(&directionOfBall);
+
+    transformToUnitVector(&direction2ball);
+
+    vectorMulitplyByScalar(&direction2ball, oldMagnitude);
+    b->dx = ceil(direction2ball.x) == 0 ? floor(direction2ball.x) : ceil(direction2ball.x);
+    b->dy = -10;
+    return true;
+  }
+
+
+  return false;
 }
 
 static void element_dealloc_trigger(Map_Element* this){
