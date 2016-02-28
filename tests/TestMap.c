@@ -11,7 +11,7 @@
 #include <assert.h>
 
 int main(){
-    map_init();
+    map_init(NULL);
     assert(map_elements[0].height == 20);
     map_render((void*)1,20);
 
