@@ -47,6 +47,11 @@ float abs_c(float num){
     } else return -num;
 }
 
+float dotProduct(Vector2 *vect1, Vector2 *vect2){
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "v1: %p, v2: %p", vect1, vect2);
+  return vect1->x * vect1->y + vect1->y * vect2->y;
+}
+
 float sqrt_f( float num ){
     const uint MAX_STEPS = 40;
     const float MAX_ERROR = 0.001;

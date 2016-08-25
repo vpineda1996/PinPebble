@@ -5,17 +5,11 @@
 //  Created by Victor Pineda on 2016-02-27.
 //
 //
+#ifndef utils_pin_peb_h
+#define utils_pin_peb_h
 
-#ifndef utils_h
-#define utils_h
-
-#include "Map_Element.h"
 #include "../env.h"
-
-typedef struct Vector2 {
-    float x;
-    float y;
-} Vector2;
+#include "types.h"
 
 int within_bounds(int window_y_offset, Map_Element *element);
 void transformToUnitVector(Vector2*);

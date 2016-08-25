@@ -276,18 +276,37 @@ static void element_render_right_trigger(Map_Element* this, GContext* ctx, int w
 }
 
 static int element_collide_right_trigger(Map_Element* this, Ball* b){
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "INSIDE TRIGGER COLIDE");
   TriggerState *ts = (TriggerState*) this->state;
   int x1 = this->offset_x, y1 = this->offset_y;
 
-  int x = -(((cos_lookup(ts->rotation) * TRIGGER_WIDTH) - sin_lookup(ts->rotation) * TRIGGER_WIDTH) 
-	  / TRIG_MAX_RATIO) + x1;
-  int y = ((sin_lookup(ts->rotation) *TRIGGER_HEIGHT) + cos_lookup(ts->rotation) * TRIGGER_HEIGHT) / TRIG_MAX_RATIO + y1;
+  int x2 = ((cos_lookup(ts->rotation) * TRIGGER_WIDTH / TRIG_MAX_RATIO) - (sin_lookup(ts->rotation) * -TRIGGER_HEIGHT 
+	  / TRIG_MAX_RATIO)) + x1;
+  int y2 = ((sin_lookup(ts->rotation) * TRIGGER_WIDTH / TRIG_MAX_RATIO) + (cos_lookup(ts->rotation) * -TRIGGER_HEIGHT 
+	  / TRIG_MAX_RATIO)+TRIGGER_HEIGHT) + y1;
   
-  float gradient = -((float)(y - y1)) / ((float)(x - x1));
-  float c = y1 - gradient * x1;
-  float result = gradient * b->x + c;
+  int x3 = ( -(sin_lookup(ts->rotation) * - TRIGGER_HEIGHT 
+	  / TRIG_MAX_RATIO)) + x1;
+  int y3 = -((cos_lookup(ts->rotation) * -TRIGGER_HEIGHT 
+	  / TRIG_MAX_RATIO) + TRIGGER_HEIGHT) + y1;
 
-  if (result - b->y  <= 13 && result - b->y >= 0 && b->x > x && b->x < x1) {
+  Point2 points[] = {
+	  {x1, y1},
+	  {x2, y2},
+	  {x3, y3}
+  };
+  Edge2 edges[] = {
+	  {&points[0], &points[1]},
+	  {&points[1], &points[2]},
+	  {&points[2], &points[3]}
+  };
+
+  CollisionElement colElem = {
+	  .array_of_edges =  edges,
+	  .numberOfEdges = 3
+  };
+
+  if (are_colliding(&colElem, &colElem)) {
     Vector2 direction2ball = {
       .x = (float)(b->x - this->offset_x + this->width),
       .y = (float)(b->y - y1)
