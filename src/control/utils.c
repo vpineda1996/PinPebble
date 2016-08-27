@@ -26,8 +26,9 @@ int within_bounds(int window_y_offset, Map_Element *element){
 
 void transformToUnitVector(Vector2* vect){
     float magnitude = magnitdeOfVector(vect);
-    vect->x = vect->x/magnitude;
-    vect->y = vect->y/magnitude;
+	vectorMulitplyByScalar(vect, 1.0f / magnitude);
+	//APP_LOG(APP_LOG_LEVEL_DEBUG, "magnitude: %i, vect.x: %i, vect.y:%i", 
+	//		(int)magnitude, (int) vect->x, (int) vect->y);
 }
 
 float magnitdeOfVector(Vector2 *vect){
@@ -48,17 +49,19 @@ float abs_c(float num){
 }
 
 float dotProduct(Vector2 *vect1, Vector2 *vect2){
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "v1: %p, v2: %p", vect1, vect2);
-  return vect1->x * vect1->y + vect1->y * vect2->y;
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "v1.x: %i, v1.y: %i, v2.x:%i, v2.y:%i", 
+  //		  (int)vect1->x, (int)vect1->y, 
+  //		  (int)vect2->x, (int)vect2->y);
+  return (vect1->x * vect2->x) + (vect1->y * vect2->y);
 }
 
 float sqrt_f( float num ){
-    const uint MAX_STEPS = 40;
+    const int MAX_STEPS = 40;
     const float MAX_ERROR = 0.001;
 
     float answer = num;
     float ans_sqr = answer * answer;
-    uint step = 0;
+    int step = 0;
     while((ans_sqr - num > MAX_ERROR) && (step++ < MAX_STEPS)) {
         answer = (answer + (num / answer)) / 2;
         ans_sqr = answer * answer;

@@ -29,9 +29,17 @@ typedef struct Ball {
     void (* render)(struct Ball*, GContext*, int);
 } Ball;
 
+typedef struct Circle {
+	short radius;
+	short x;
+	short y;
+} Circle;
+
 typedef struct CollisionElement {
   Edge2* array_of_edges;
   int numberOfEdges;
+  short isCircle;
+  Circle *circle;
 } CollisionElement;
 
 typedef struct MinMax {

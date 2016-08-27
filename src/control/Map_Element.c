@@ -276,19 +276,21 @@ static void element_render_right_trigger(Map_Element* this, GContext* ctx, int w
 }
 
 static int element_collide_right_trigger(Map_Element* this, Ball* b){
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "INSIDE TRIGGER COLIDE");
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "INSIDE TRIGGER COLIDE");
   TriggerState *ts = (TriggerState*) this->state;
   int x1 = this->offset_x, y1 = this->offset_y;
 
-  int x2 = ((cos_lookup(ts->rotation) * TRIGGER_WIDTH / TRIG_MAX_RATIO) - (sin_lookup(ts->rotation) * -TRIGGER_HEIGHT 
+  // Negating x to reflect on x axis
+  int x2 = -((cos_lookup(ts->rotation) * TRIGGER_WIDTH / TRIG_MAX_RATIO) - (sin_lookup(ts->rotation) * -TRIGGER_HEIGHT 
 	  / TRIG_MAX_RATIO)) + x1;
   int y2 = ((sin_lookup(ts->rotation) * TRIGGER_WIDTH / TRIG_MAX_RATIO) + (cos_lookup(ts->rotation) * -TRIGGER_HEIGHT 
-	  / TRIG_MAX_RATIO)+TRIGGER_HEIGHT) + y1;
-  
-  int x3 = ( -(sin_lookup(ts->rotation) * - TRIGGER_HEIGHT 
+	  / TRIG_MAX_RATIO)+ 2 * TRIGGER_HEIGHT) + y1;
+
+  // Negating x to reflect on x axis
+  int x3 = - ( -(sin_lookup(ts->rotation) * - TRIGGER_HEIGHT 
 	  / TRIG_MAX_RATIO)) + x1;
-  int y3 = -((cos_lookup(ts->rotation) * -TRIGGER_HEIGHT 
-	  / TRIG_MAX_RATIO) + TRIGGER_HEIGHT) + y1;
+  int y3 = ((cos_lookup(ts->rotation) * -TRIGGER_HEIGHT 
+	  / TRIG_MAX_RATIO) + 2 * TRIGGER_HEIGHT) + y1;
 
   Point2 points[] = {
 	  {x1, y1},
@@ -298,15 +300,32 @@ static int element_collide_right_trigger(Map_Element* this, Ball* b){
   Edge2 edges[] = {
 	  {&points[0], &points[1]},
 	  {&points[1], &points[2]},
-	  {&points[2], &points[3]}
+	  {&points[2], &points[0]}
   };
 
-  CollisionElement colElem = {
+  CollisionElement colElemTrigger = {
 	  .array_of_edges =  edges,
-	  .numberOfEdges = 3
+	  .numberOfEdges = 3,
+	  .isCircle = 0
   };
 
-  if (are_colliding(&colElem, &colElem)) {
+  Vector2 circlePoints[] = {
+	  {b->x, b->y},
+	  {x1 + TRIGGER_WIDTH / 3, y1 + TRIGGER_HEIGHT/ 2}
+  };
+
+  Edge2 circleEdges[] = {
+	  {&circlePoints[0], &circlePoints[1]}
+  };
+
+  CollisionElement colElemBall = {
+	  .array_of_edges = circleEdges,
+	  .numberOfEdges = 1,
+	  .isCircle = 1,
+	  .circle = (Circle *) b
+  };
+
+  if (are_colliding(&colElemTrigger, &colElemBall)) {
     Vector2 direction2ball = {
       .x = (float)(b->x - this->offset_x + this->width),
       .y = (float)(b->y - y1)
@@ -354,9 +373,9 @@ static int element_collide_left_trigger(Map_Element* this, Ball* b){
   float c = y1 - gradient * x1;
   float result = gradient * b->x + c;
 
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "%i %i %i x:%i y: %i x1:%i y1:%i", (int)result, b->x, (int) (gradient * 100), x, y, x1, y1);
+    //APP_LOG(APP_LOG_LEVEL_DEBUG, "%i %i %i x:%i y: %i x1:%i y1:%i", (int)result, b->x, (int) (gradient * 100), x, y, x1, y1);
   if (result - (-b->y)  <= 15 && result - (-b->y) >= 0 && b->x < x && b->x > x1 - SPACING - b->radius) {
-	  APP_LOG(APP_LOG_LEVEL_DEBUG,"INSIDE"); 
+	  //APP_LOG(APP_LOG_LEVEL_DEBUG,"INSIDE"); 
     Vector2 direction2ball = {
       .x = (float)(b->x - this->offset_x + this->width),
       .y = (float)(b->y + y1)
