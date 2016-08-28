@@ -24,7 +24,6 @@ typedef struct Ball {
     float _dt;
     float _tempY;
     float _gravity;
-
     void (* tick)(struct Ball*);
     void (* render)(struct Ball*, GContext*, int);
 } Ball;

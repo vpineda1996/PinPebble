@@ -24,11 +24,12 @@ int within_bounds(int window_y_offset, Map_Element *element){
     }return true;
 }
 
-void transformToUnitVector(Vector2* vect){
+float transformToUnitVector(Vector2* vect){
     float magnitude = magnitdeOfVector(vect);
 	vectorMulitplyByScalar(vect, 1.0f / magnitude);
 	//APP_LOG(APP_LOG_LEVEL_DEBUG, "magnitude: %i, vect.x: %i, vect.y:%i", 
 	//		(int)magnitude, (int) vect->x, (int) vect->y);
+	return magnitude;
 }
 
 float magnitdeOfVector(Vector2 *vect){

@@ -1,10 +1,11 @@
 #include "CollisionHelper.h"
 
-static void findNormal(Edge2*, Vector2*);
+static float findNormal(Edge2*, Vector2*);
 static void get_normals_from_object (CollisionElement*, Vector2*, int*);
 static int objects_overlap_in_normal(CollisionElement*, CollisionElement*, Vector2*);
 static void get_min_max(MinMax*, CollisionElement*, Vector2*);
-
+static void get_min_max_poly(MinMax*, CollisionElement*, Vector2*);
+static void get_min_max_circ(MinMax*, CollisionElement*, Vector2*);
 
 // Determines whether two objects are colliding with each other
 int are_colliding(CollisionElement* object_a, CollisionElement* object_b) {
@@ -34,6 +35,33 @@ int distance_to_collision(CollisionElement* object_a, CollisionElement* object_b
   return 0; //stub
 }
 
+void calc_bounce_vector(Vector2* direction, Edge2* edge, Vector2* res){
+	Vector2 n;
+	// Find the edge's normal 
+	findNormal(edge, &n);
+	Vector2 v = n; // copy vector
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "n.x: %i, n.y:%i", (int) (n.x * 100) , (int) (n.y * 100));
+	// Project the velocity on the normal to break velocity into an orthogonal
+	// and parallel vector
+	// We multiply by two to avoid doing that later on because the parallel
+	// vector to the edge is direction - v, then we know that the bouce
+	// vector is (direction - v) - v
+	float scalar = 2 * dotProduct(direction, &n);
+	vectorMulitplyByScalar(&v, scalar);
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "scalar: %i, dot: %i",
+			(int) (scalar * 100), (int) (dotProduct(direction, &n) *100));
+
+	res->x = direction->x - v.x;
+	res->y = direction->y - v.y;
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "direction.x: %i, direction.y: %i, v.x: %i, v.y: %i, res.x: %i, res.y: %i",
+			(int) (direction->x * 100), (int) (direction->y *100),
+			(int) (v.x * 100), (int) (v.y * 100),
+			(int) (res->x *100), (int) (res->y * 100));
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "e.a.x: %i, e.a.y: %i, e.b.x: %i, e.b.y: %i",
+			(int) (edge->a->x * 100), (int) (edge->a->y *100),
+			(int) (edge->b->x * 100), (int) (edge->b->y * 100));
+}
+
 static int objects_overlap_in_normal(CollisionElement* object_a, CollisionElement* object_b, Vector2* normal){
   MinMax min_max_obj_a, min_max_obj_b;
   get_min_max(&min_max_obj_a, object_a, normal);
@@ -49,6 +77,15 @@ static int objects_overlap_in_normal(CollisionElement* object_a, CollisionElemen
   //	  min_max_obj_b.min,
   //	  res);
   return res;
+}
+
+static void get_min_max(MinMax* res, CollisionElement* object, Vector2* normal){
+	//APP_LOG(APP_LOG_LEVEL_DEBUG, "normal.x: %d, normal.y:%d", (int)normal->x, (int)normal->y);
+	if(object->isCircle){
+	  get_min_max_circ(res, object, normal);
+	}else {
+      get_min_max_poly(res, object, normal);
+	}
 }
 
 static void get_min_max_poly(MinMax* res, CollisionElement* object, Vector2* normal){
@@ -89,22 +126,13 @@ static void get_min_max_circ(MinMax* res, CollisionElement* object, Vector2* nor
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"res_circ_max: %i, res_circ_min: %i", res->max, res->min);
 }
 
-static void get_min_max(MinMax* res, CollisionElement* object, Vector2* normal){
-	//APP_LOG(APP_LOG_LEVEL_DEBUG, "normal.x: %d, normal.y:%d", (int)normal->x, (int)normal->y);
-	if(object->isCircle){
-	  get_min_max_circ(res, object, normal);
-	}else {
-      get_min_max_poly(res, object, normal);
-	}
-}
-
-static void findNormal(Edge2* edge, Vector2* result){
-  result->x = - ( edge->a->x - edge->b->x );
-  result->y = (edge->a->y - edge->b->y );
-  transformToUnitVector(result);
+static float findNormal(Edge2* edge, Vector2* result){
+  result->x = - ( edge->b->x - edge->a->x );
+  result->y = (edge->b->y - edge->a->y );
+  float edge_mag = transformToUnitVector(result);
   //APP_LOG(APP_LOG_LEVEL_DEBUG, "n.x: %i, n.y:%i",
   //		  (int)result->x, (int)result->y);
-
+  return edge_mag;
 }
 
 // Gets normals from the regular object

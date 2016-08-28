@@ -12,7 +12,7 @@
 #include "types.h"
 
 int within_bounds(int window_y_offset, Map_Element *element);
-void transformToUnitVector(Vector2*);
+float transformToUnitVector(Vector2*);
 void negateVector(Vector2* vect);
 float magnitdeOfVector(Vector2 *vect);
 float dotProduct(Vector2 *vect1, Vector2 *vect2);

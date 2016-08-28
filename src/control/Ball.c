@@ -16,7 +16,7 @@ void ball_init(Ball* this){
     this->tick = ball_tick;
     this->render = ball_render;
     this->radius = 6;
-    this->x = this->radius * 2;
+    this->x = this->radius * 2 + 50;
     this->y = SCREEN_HEIGHT / 2 ;
     this->dx = -2;
     this->dy = -1;

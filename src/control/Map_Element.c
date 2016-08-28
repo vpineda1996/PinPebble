@@ -335,24 +335,25 @@ static int element_collide_right_trigger(Map_Element* this, Ball* b){
   };
 
   if (are_colliding(&colElemTrigger, &colElemBall)) {
-    Vector2 direction2ball = {
-      .x = (float)(b->x - this->offset_x + this->width),
-      .y = (float)(b->y - y1)
-    };
-
     Vector2 directionOfBall = {
       .x = (float)(b->dx),
       .y = (float)(b->dy)
-    };
+    }, res;
 
-    float oldMagnitude = magnitdeOfVector(&directionOfBall);
+	if(b->x - b->radius > this->offset_x){
+		// collided on left side
+		calc_bounce_vector(&directionOfBall, &edges[2], &res);
+	} else if (b->y - b->radius > this->offset_y + TRIGGER_HEIGHT){
+		// collided at the bottom
+		calc_bounce_vector(&directionOfBall, &edges[1], &res);
+	} else {
+		// colided at top side
+		calc_bounce_vector(&directionOfBall, &edges[0], &res);
+	}
 
-    transformToUnitVector(&direction2ball);
-
-    vectorMulitplyByScalar(&direction2ball, oldMagnitude);
-    b->dx = ceil(direction2ball.x) == 0 ? floor(direction2ball.x) : ceil(direction2ball.x);
-    b->dy = ceil(direction2ball.y) == 0 ? floor(direction2ball.y) : ceil(direction2ball.y);
-    return true;
+    b->dx = res.x;
+    b->dy = res.y; 
+	return true;
   }
   return false;
 }
@@ -442,28 +443,32 @@ static int element_collide_left_trigger(Map_Element* this, Ball* b){
 
     //APP_LOG(APP_LOG_LEVEL_DEBUG, "%i %i %i x:%i y: %i x1:%i y1:%i", (int)result, b->x, (int) (gradient * 100), x, y, x1, y1);
   if (result - (-b->y)  <= 15 && result - (-b->y) >= 0 && b->x < x && b->x > x1 - SPACING - b->radius) {
-	  //APP_LOG(APP_LOG_LEVEL_DEBUG,"INSIDE"); */ 
+	  //APP_LOG(APP_LOG_LEVEL_DEBUG,"INSIDE"); 
     Vector2 direction2ball = {
       .x = (float)(b->x - this->offset_x + this->width),
       .y = (float)(b->y + y1)
-    };
+    }; */
 
     Vector2 directionOfBall = {
       .x = (float)(b->dx),
       .y = (float)(b->dy)
-    };
+    }, res;
 
-    float oldMagnitude = magnitdeOfVector(&directionOfBall);
+	if(b->x + b->radius > this->offset_x){
+		// collided on left side
+		calc_bounce_vector(&directionOfBall, &edges[2], &res);
+	} else if (b->y - b->radius > this->offset_y + TRIGGER_HEIGHT){
+		// collided at the bottom
+		calc_bounce_vector(&directionOfBall, &edges[1], &res);
+	} else {
+		// colided at top side
+		calc_bounce_vector(&directionOfBall, &edges[0], &res);
+	}
 
-    transformToUnitVector(&direction2ball);
-
-    vectorMulitplyByScalar(&direction2ball, oldMagnitude);
-    b->dx = ceil(direction2ball.x) == 0 ? floor(direction2ball.x) : ceil(direction2ball.x);
-    b->dy = ceil(direction2ball.y) == 0 ? floor(direction2ball.y) : ceil(direction2ball.y);
+    b->dx = res.x;
+    b->dy = res.y; 
     return true;
   }
-
-
   return false;
 }
 
