@@ -280,6 +280,15 @@ static int element_collide_right_trigger(Map_Element* this, Ball* b){
   TriggerState *ts = (TriggerState*) this->state;
   int x1 = this->offset_x, y1 = this->offset_y;
 
+  /* To calc the current position of the trigger correctly, we need to throw a bit of math
+   * 
+   * Basically we minus the TRIGGER_HEIGHT to put the figure at the bottom and then we rotate
+   * the trigger depending on the angle that the user gave us.
+   *
+   * Once that's done we shift it up by adding the TRIGGER_HEIGHT (we multiply it times two
+   * since we want the lower left or right vertex)
+   */
+
   // Negating x to reflect on x axis
   int x2 = -((cos_lookup(ts->rotation) * TRIGGER_WIDTH / TRIG_MAX_RATIO) - (sin_lookup(ts->rotation) * -TRIGGER_HEIGHT 
 	  / TRIG_MAX_RATIO)) + x1;
@@ -363,6 +372,64 @@ static void element_render_left_trigger(Map_Element* this, GContext* ctx, int wi
 
 static int element_collide_left_trigger(Map_Element* this, Ball* b){
   TriggerState *ts = (TriggerState*) this->state;
+
+  /* To calc the current position of the trigger correctly, we need to throw a bit of math
+   * 
+   * Basically we minus the TRIGGER_HEIGHT to put the figure at the bottom and then we rotate
+   * the trigger depending on the angle that the user gave us.
+   *
+   * Once that's done we shift it up by adding the TRIGGER_HEIGHT (we multiply it times two
+   * since we want the lower left or right vertex)
+   */
+  
+  int x1 = this->offset_x, y1 = this->offset_y;
+  
+  int x2 = ((cos_lookup(ts->rotation) * TRIGGER_WIDTH / TRIG_MAX_RATIO) - (sin_lookup(ts->rotation) * -TRIGGER_HEIGHT 
+	  / TRIG_MAX_RATIO)) + x1;
+  int y2 = ((sin_lookup(ts->rotation) * TRIGGER_WIDTH / TRIG_MAX_RATIO) + (cos_lookup(ts->rotation) * -TRIGGER_HEIGHT 
+	  / TRIG_MAX_RATIO)+ 2 * TRIGGER_HEIGHT) + y1;
+
+  int x3 = - ( -(sin_lookup(ts->rotation) * - TRIGGER_HEIGHT 
+	  / TRIG_MAX_RATIO)) + x1;
+  int y3 = ((cos_lookup(ts->rotation) * -TRIGGER_HEIGHT 
+	  / TRIG_MAX_RATIO) + 2 * TRIGGER_HEIGHT) + y1;
+
+  Point2 points[] = {
+	  {x1, y1},
+	  {x2, y2},
+	  {x3, y3}
+  };
+  Edge2 edges[] = {
+	  {&points[0], &points[1]},
+	  {&points[1], &points[2]},
+	  {&points[2], &points[0]}
+  };
+
+  CollisionElement colElemTrigger = {
+	  .array_of_edges =  edges,
+	  .numberOfEdges = 3,
+	  .isCircle = 0
+  };
+
+  Vector2 circlePoints[] = {
+	  {b->x, b->y},
+	  {x1 + TRIGGER_WIDTH / 3, y1 + TRIGGER_HEIGHT/ 2}
+  };
+
+  Edge2 circleEdges[] = {
+	  {&circlePoints[0], &circlePoints[1]}
+  };
+
+  CollisionElement colElemBall = {
+	  .array_of_edges = circleEdges,
+	  .numberOfEdges = 1,
+	  .isCircle = 1,
+	  .circle = (Circle *) b
+  };
+
+  if (are_colliding(&colElemTrigger, &colElemBall)) {
+
+  /*
   int x1 = this->offset_x, y1 = -this->offset_y;
 
   int x = ((cos_lookup(ts->rotation) * TRIGGER_WIDTH) - sin_lookup(ts->rotation) * TRIGGER_HEIGHT) 
@@ -375,7 +442,7 @@ static int element_collide_left_trigger(Map_Element* this, Ball* b){
 
     //APP_LOG(APP_LOG_LEVEL_DEBUG, "%i %i %i x:%i y: %i x1:%i y1:%i", (int)result, b->x, (int) (gradient * 100), x, y, x1, y1);
   if (result - (-b->y)  <= 15 && result - (-b->y) >= 0 && b->x < x && b->x > x1 - SPACING - b->radius) {
-	  //APP_LOG(APP_LOG_LEVEL_DEBUG,"INSIDE"); 
+	  //APP_LOG(APP_LOG_LEVEL_DEBUG,"INSIDE"); */ 
     Vector2 direction2ball = {
       .x = (float)(b->x - this->offset_x + this->width),
       .y = (float)(b->y + y1)
